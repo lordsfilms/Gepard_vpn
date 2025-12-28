@@ -8,22 +8,22 @@ import json
 import requests
 import base64
 import websocket
-from datetime import datetime, timedelta
+from datetime import datetime
 from urllib.parse import quote, unquote
+from concurrent.futures import ThreadPoolExecutor # Для скорости!
 
 # ------------------ Настройки ------------------
 NEW_KEYS_FOLDER = "checked"
 os.makedirs(NEW_KEYS_FOLDER, exist_ok=True)
 
 TIMEOUT = 2
-RETRIES = 1
-CACHE_DURATION_HOURS = 6  # Если ключ проверяли меньше 6 часов назад - не проверяем снова
+THREADS = 50          # Проверять 50 ключей одновременно (можно ставить до 100)
+CACHE_HOURS = 12      # Верить истории 12 часов
 
 LIVE_KEYS_FILE = os.path.join(NEW_KEYS_FOLDER, "live_keys.txt")
-HISTORY_FILE = os.path.join(NEW_KEYS_FOLDER, "history.json") # Тут храним память
+HISTORY_FILE = os.path.join(NEW_KEYS_FOLDER, "history.json")
 MY_CHANNEL = "@vlesstrojan" 
 
-# Ваши источники
 URLS = [
     "https://raw.githubusercontent.com/kort0881/vpn-vless-configs-russia/main/githubmirror/new/all_new.txt",
     "https://raw.githubusercontent.com/zieng2/wl/main/vless.txt",
@@ -38,32 +38,22 @@ URLS = [
 # ------------------ Функции ------------------
 
 def load_history():
-    """Загружаем базу проверенных ключей"""
     if os.path.exists(HISTORY_FILE):
         try:
             with open(HISTORY_FILE, "r", encoding="utf-8") as f:
                 return json.load(f)
-        except: return {}
+        except: pass
     return {}
 
 def save_history(history):
-    """Сохраняем базу"""
     try:
         with open(HISTORY_FILE, "w", encoding="utf-8") as f:
             json.dump(history, f, ensure_ascii=False, indent=2)
     except: pass
 
-def decode_base64_safe(data):
-    try:
-        data = data.replace('-', '+').replace('_', '/')
-        padding = len(data) % 4
-        if padding: data += '=' * (4 - padding)
-        return base64.b64decode(data).decode('utf-8', errors='ignore')
-    except: return None
-
 def fetch_and_load_keys(urls):
     all_keys = set()
-    print(f"Загрузка с {len(urls)} источников...")
+    print(f"Загрузка источников...")
     for url in urls:
         try:
             headers = {'User-Agent': 'Mozilla/5.0'}
@@ -71,9 +61,12 @@ def fetch_and_load_keys(urls):
             if resp.status_code != 200: continue
             
             content = resp.text.strip()
-            if "vmess://" not in content and "vless://" not in content:
-                decoded = decode_base64_safe(content)
-                lines = decoded.splitlines() if decoded else content.splitlines()
+            # Простой детект: если похоже на base64 и нет протоколов
+            if "://" not in content:
+                try:
+                    decoded = base64.b64decode(content + "==").decode('utf-8', errors='ignore')
+                    lines = decoded.splitlines()
+                except: lines = content.splitlines()
             else:
                 lines = content.splitlines()
 
@@ -81,145 +74,127 @@ def fetch_and_load_keys(urls):
                 line = line.strip()
                 if line.startswith(("vless://", "vmess://", "trojan://", "ss://")):
                     all_keys.add(line)
-        except Exception: pass
+        except: pass
     return list(all_keys)
 
-def extract_host_port(key):
+def check_single_key(key):
+    """Функция для проверки ОДНОГО ключа (запускается в потоке)"""
     try:
+        # Парсинг
         if "@" in key and ":" in key:
-            after_at = key.split("@")[1]
-            main_part = re.split(r'[?#]', after_at)[0]
-            if ":" in main_part:
-                return main_part.split(":")[0], int(main_part.split(":")[1])
-    except: return None, None
-    return None, None
+            part = key.split("@")[1].split("?")[0].split("#")[0]
+            host, port = part.split(":")[0], int(part.split(":")[1])
+        else: return None
 
-def measure_latency(key, host, port, timeout=TIMEOUT):
-    is_tls = 'security=tls' in key or 'security=reality' in key or 'trojan://' in key or 'vmess://' in key
-    is_ws = 'type=ws' in key or 'net=ws' in key
-    
-    path = "/"
-    path_match = re.search(r'path=([^&]+)', key)
-    if path_match: path = unquote(path_match.group(1))
-    protocol = "wss" if is_tls else "ws"
+        # Определение типа
+        is_tls = 'security=tls' in key or 'security=reality' in key or 'trojan://' in key or 'vmess://' in key
+        is_ws = 'type=ws' in key or 'net=ws' in key
+        path = "/"
+        match = re.search(r'path=([^&]+)', key)
+        if match: path = unquote(match.group(1))
 
-    if is_ws:
-        try:
-            start = time.time()
+        # Тест
+        start = time.time()
+        
+        if is_ws:
+            protocol = "wss" if is_tls else "ws"
             ws_url = f"{protocol}://{host}:{port}{path}"
-            ws = websocket.create_connection(ws_url, timeout=timeout, sslopt={"cert_reqs": ssl.CERT_NONE})
+            ws = websocket.create_connection(ws_url, timeout=TIMEOUT, sslopt={"cert_reqs": ssl.CERT_NONE})
             ws.close()
-            return int((time.time() - start) * 1000)
-        except: return None
-
-    if not is_ws and is_tls:
-        try:
-            start = time.time()
+        elif is_tls:
             context = ssl.create_default_context()
             context.check_hostname = False
             context.verify_mode = ssl.CERT_NONE
-            with socket.create_connection((host, port), timeout=timeout) as sock:
+            with socket.create_connection((host, port), timeout=TIMEOUT) as sock:
                 with context.wrap_socket(sock, server_hostname=host):
                     pass
-            return int((time.time() - start) * 1000)
-        except: return None
-
-    try:
-        start = time.time()
-        with socket.create_connection((host, port), timeout=timeout):
-            pass
+        else:
+            with socket.create_connection((host, port), timeout=TIMEOUT):
+                pass
+        
         return int((time.time() - start) * 1000)
-    except: return None
-
-def add_comment(key, latency, quality):
-    if "#" in key: base, _ = key.split("#", 1)
-    else: base = key
-    tag = f"{quality}_{latency}ms_{MY_CHANNEL}".replace(" ", "_")
-    return f"{base}#{tag}"
+    except:
+        return None
 
 # ------------------ Main ------------------
 if __name__ == "__main__":
-    print("=== START SMART CHECKER ===")
+    print(f"=== FAST CHECKER (Threads: {THREADS}) ===")
     
-    # 1. Загружаем историю проверок
+    # 1. Загрузка
     history = load_history()
-    print(f"В истории записей: {len(history)}")
+    keys_raw = fetch_and_load_keys(URLS)
+    print(f"Всего ключей: {len(keys_raw)}")
     
-    # 2. Качаем свежие ключи
-    current_keys = fetch_and_load_keys(URLS)
-    print(f"Скачано уникальных ключей: {len(current_keys)}")
-
-    valid_keys_list = []
+    # 2. Фильтрация (что проверять, что брать из кэша)
+    to_check = []     # (key_original, key_clean)
+    results = []      # готовые строки для файла
     current_time = time.time()
-    checks_made = 0
-    skipped_count = 0
-
-    # 3. Умная проверка
-    for i, key in enumerate(current_keys):
-        key = html.unescape(key).strip()
-        
-        # Используем сам ключ (без хештега) как ID для базы
-        key_id = key.split("#")[0]
-        
-        # ПРОВЕРКА КЭША
-        cached = history.get(key_id)
-        latency = None
-        need_check = True
-
-        if cached:
-            last_check_time = cached.get('time', 0)
-            # Если проверяли недавно (меньше 6 часов назад)
-            if current_time - last_check_time < (CACHE_DURATION_HOURS * 3600):
-                if cached.get('alive', False):
-                    # Ключ был жив, верим истории
-                    latency = cached.get('latency', 100)
-                    need_check = False
-                    skipped_count += 1
-                else:
-                    # Ключ был мертв, проверяем реже (например, раз в 24 часа) или не проверяем
-                    # Для простоты: мертвые перепроверяем всегда, вдруг ожили? 
-                    # Или можно пропускать: need_check = False
-                    pass
-
-        if need_check:
-            host, port = extract_host_port(key)
-            if host:
-                checks_made += 1
-                latency = measure_latency(key, host, port)
-                
-                # Обновляем историю
-                history[key_id] = {
-                    'alive': latency is not None,
-                    'latency': latency,
-                    'time': current_time
-                }
-        
-        # Если живой (из кэша или после проверки)
-        if latency is not None:
-            qual = "fast" if latency < 500 else "normal" if latency < 1500 else "slow"
-            final_key = add_comment(key, latency, qual)
-            valid_keys_list.append(final_key)
-            
-        if i % 100 == 0: 
-            print(f"Processed {i}/{len(current_keys)} (Checks: {checks_made}, Skipped: {skipped_count})")
-
-    # 4. Сохраняем результаты
     
-    # Чистим старую историю (удаляем записи старше 3 дней, чтобы файл не пух)
-    clean_history = {}
-    for k, v in history.items():
-        if current_time - v['time'] < (3 * 24 * 3600):
-            clean_history[k] = v
-    save_history(clean_history)
+    for k in keys_raw:
+        k = html.unescape(k).strip()
+        k_id = k.split("#")[0] # ID без хештега
+        
+        # Проверяем кэш
+        cached = history.get(k_id)
+        if cached and (current_time - cached['time'] < CACHE_HOURS * 3600) and cached['alive']:
+            # Взять из кэша
+            latency = cached['latency']
+            tag = f"cached_{latency}ms_{MY_CHANNEL}"
+            if "#" in k: base = k.split("#")[0]
+            else: base = k
+            results.append(f"{base}#{tag}")
+        else:
+            # Нужно проверять
+            to_check.append(k)
+
+    print(f"Взято из кэша: {len(results)}")
+    print(f"Нужно проверить: {len(to_check)}")
+
+    # 3. Многопоточная проверка
+    print("Запуск потоков...")
+    new_history_updates = {}
+    
+    with ThreadPoolExecutor(max_workers=THREADS) as executor:
+        # Запускаем задачи
+        future_to_key = {executor.submit(check_single_key, k): k for k in to_check}
+        
+        # Собираем результаты по мере готовности
+        for i, future in enumerate(future_to_key):
+            key = future_to_key[future]
+            latency = future.result()
+            
+            k_id = key.split("#")[0]
+            new_history_updates[k_id] = {
+                'alive': latency is not None,
+                'latency': latency,
+                'time': current_time
+            }
+
+            if latency is not None:
+                qual = "fast" if latency < 500 else "normal"
+                tag = f"{qual}_{latency}ms_{MY_CHANNEL}"
+                if "#" in key: base = key.split("#")[0]
+                else: base = key
+                results.append(f"{base}#{tag}")
+            
+            if i % 100 == 0:
+                print(f"Checked {i}/{len(to_check)}")
+
+    # 4. Сохранение
+    # Объединяем старую историю с новыми данными
+    history.update(new_history_updates)
+    
+    # Чистим совсем старое (>3 дней)
+    clean_hist = {k:v for k,v in history.items() if current_time - v['time'] < 259200}
+    save_history(clean_hist)
 
     with open(LIVE_KEYS_FILE, "w", encoding="utf-8") as f:
-        for k in valid_keys_list:
-            f.write(k + "\n")
+        for r in results:
+            f.write(r + "\n")
+            
+    print(f"=== DONE. Valid: {len(results)} ===")
 
-    print(f"=== DONE ===")
-    print(f"Valid: {len(valid_keys_list)}")
-    print(f"Real Checks: {checks_made}")
-    print(f"Skipped (Cached): {skipped_count}")
+
 
 
 
