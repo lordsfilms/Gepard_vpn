@@ -1,0 +1,8 @@
+xray
+xray.exe
+xray-linux-64
+Xray-linux-64.zip
+Xray-windows-64.zip
+*.log
+__pycache__/
+*.pyc
