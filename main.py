@@ -80,8 +80,10 @@ RU_MARKERS_STRICT = [
 ]
 
 def is_russian_exit(key_str, host, country):
+    # Сигнатура не тронута — country теперь уже exit-страна из detect_exit_country_via_http
     if country == "RU":
         return True
+    # Резерв: маркеры по хосту/ключу на случай, если geo-API не ответил
     host_lower = host.lower()
     key_upper = key_str.upper()
     if host_lower.endswith(".ru"):
@@ -133,6 +135,41 @@ def country_to_title_ru(code: str) -> str:
 def country_to_flag(code: str) -> str:
     return COUNTRY_FLAGS.get(code, "")
 
+# ------------------ In-memory кэш IP → страна (чтобы не бомбить geo-API) ------------------
+# Ключ: строка IP-адреса, значение: двухбуквенный код страны или "UNKNOWN"
+_ip_country_cache: dict = {}
+
+def detect_exit_country_via_http(proxy_host: str, proxy_port: int, scheme: str) -> str:
+    """
+    Определяет exit-страну сервера по его реальному IP через ip-api.com.
+    Не маршрутизирует трафик через прокси-протокол — резолвит хост в IP,
+    затем делает прямой запрос к geo-API. Для VLESS/VMess/Trojan exit IP —
+    это и есть IP самого сервера (если нет relay).
+
+    Возвращает двухбуквенный код страны или "UNKNOWN".
+    """
+    global _ip_country_cache
+    try:
+        # Резолвим хост в IP (с таймаутом через socket.setdefaulttimeout)
+        ip = socket.gethostbyname(proxy_host)
+
+        if ip in _ip_country_cache:
+            return _ip_country_cache[ip]
+
+        # ip-api.com: бесплатный, не требует ключа, лимит ~45 req/min
+        r = requests.get(
+            f"http://ip-api.com/json/{ip}?fields=countryCode",
+            timeout=4
+        )
+        if r.status_code == 200:
+            data = r.json()
+            code = data.get("countryCode", "UNKNOWN") or "UNKNOWN"
+            _ip_country_cache[ip] = code
+            return code
+    except Exception:
+        pass
+    return "UNKNOWN"
+
 # ------------------ Функции ------------------
 
 def load_json(path):
@@ -152,6 +189,7 @@ def save_json(path, data):
         pass
 
 def get_country_fast(host, key_name):
+    """Быстрый hint по доменному суффиксу / тексту ключа. Только fallback."""
     try:
         host = host.lower()
         name = key_name.upper()
@@ -220,11 +258,6 @@ def check_single_key(data):
         else:
             return None, None, None, None, key
 
-        country = get_country_fast(host, key)
-
-        if tag == "MY" and country == "RU":
-            return None, None, None, None, key
-
         is_tls = (
             "security=tls" in key or
             "security=reality" in key or
@@ -261,15 +294,24 @@ def check_single_key(data):
                 pass
 
         latency = int((time.time() - start) * 1000)
-        return latency, tag, country, host, key
+
+        # ── Определяем exit-страну по реальному IP сервера ──
+        scheme = "wss" if (is_ws and is_tls) else ("ws" if is_ws else ("tls" if is_tls else "tcp"))
+        country_exit = detect_exit_country_via_http(host, port, scheme)
+
+        # Fallback: если geo-API не ответил — берём hint по хосту/ключу
+        if country_exit == "UNKNOWN":
+            country_exit = get_country_fast(host, key)
+
+        return latency, tag, country_exit, host, key
     except:
         return None, None, None, None, key
 
 def make_final_key(k_id, latency, country):
-    title_ru = country_to_title_ru(country)   # "Польша"
-    flag = country_to_flag(country)          # "🇵🇱"
+    title_ru = country_to_title_ru(country)
+    flag = country_to_flag(country)
     if country and country != "UNKNOWN":
-        title_full = f"{title_ru} {country}"  # "Польша PL"
+        title_full = f"{title_ru} {country}"
     else:
         title_full = title_ru
     info_str = f"[{latency}ms {title_full} {flag} {MY_CHANNEL}]"
@@ -422,6 +464,7 @@ if __name__ == "__main__":
         cached = history.get(k_id)
 
         if cached and (current_time - cached["time"] < CACHE_HOURS * 3600) and cached["alive"]:
+            # country в кэше — уже exit-страна (для старых записей — hint, обновится при следующей проверке)
             latency = cached["latency"]
             country = cached.get("country", "UNKNOWN")
             host = cached.get("host", "")
@@ -456,11 +499,12 @@ if __name__ == "__main__":
 
                 k_id = original_key.split("#")[0]
 
+                # Сохраняем exit-страну (формат history не меняется)
                 history[k_id] = {
                     "alive": True,
                     "latency": latency,
                     "time": time.time(),
-                    "country": country,
+                    "country": country,   # теперь exit-страна
                     "host": host,
                 }
 
@@ -528,7 +572,6 @@ if __name__ == "__main__":
     print("\n✅ SUCCESS: FAST/ALL + WHITE/BLACK GENERATED")
     print(f"  RU FAST: {len(res_ru_fast)}, RU WHITE: {len(res_ru_all)}, RU BLACK: {len(dead_ru)}")
     print(f"  EURO FAST: {len(res_euro_fast)}, EURO WHITE: {len(res_euro_all)}, EURO BLACK: {len(dead_euro)}")
-
 
 
 
