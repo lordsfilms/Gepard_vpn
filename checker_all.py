@@ -30,11 +30,11 @@ socket.setdefaulttimeout(TIMEOUT)
 THREADS = 40
 
 CACHE_HOURS = 6
-CHUNK_LIMIT = 1000
-MAX_KEYS_TO_CHECK = 30000
+CHUNK_LIMIT = 150          # было 1000
+MAX_KEYS_TO_CHECK = 10**9  # было 30000
 
 MAX_PING_MS = 3000
-FAST_LIMIT = 30000        # по сути, лимит «ALL», можно поднять/опустить
+FAST_LIMIT = 10**9         # было 30000, теперь по сути без лимита
 MAX_HISTORY_AGE = 2 * 24 * 3600
 
 # Кэш IP → страна
@@ -442,8 +442,9 @@ if __name__ == "__main__":
     print(f"\n📈 После фильтрации (≤ {MAX_PING_MS} ms) и сортировки:")
     print(f"  ALL: {len(result_clean)} ключей")
 
-    result_fast = result_clean[:FAST_LIMIT]
-    print(f"\n🚀 FAST слой (топ {FAST_LIMIT}): {len(result_fast)}")
+    # FAST без реального лимита — просто копия result_clean
+    result_fast = result_clean
+    print(f"\n🚀 FAST слой (топ {len(result_fast)}): {len(result_fast)}")
 
     print(f"\n💾 Сохранение ALL (чанки по {CHUNK_LIMIT}) → {FOLDER_ALL}:")
     all_files = save_chunked_all(result_clean, FOLDER_ALL, base_name="ALL_all", chunk_size=CHUNK_LIMIT)
