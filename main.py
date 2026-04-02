@@ -498,11 +498,13 @@ def save_fixed_chunks_ru(keys_list, folder):
     ]
     while len(chunks) < 4:
         chunks.append([])
+    file_names = []
     for i, filename in enumerate(RU_FILES):
         save_exact(chunks[i] if i < len(chunks) else [], folder, filename)
         count = len(chunks[i]) if i < len(chunks) else 0
         print(f"  {filename}: {count} ключей")
-    return RU_FILES
+        file_names.append(filename)
+    return file_names
 
 
 def save_fixed_chunks_euro(keys_list, folder):
@@ -513,11 +515,13 @@ def save_fixed_chunks_euro(keys_list, folder):
     ]
     while len(chunks) < 3:
         chunks.append([])
+    file_names = []
     for i, filename in enumerate(EURO_FILES):
         save_exact(chunks[i] if i < len(chunks) else [], folder, filename)
         count = len(chunks[i]) if i < len(chunks) else 0
         print(f"  {filename}: {count} ключей")
-    return EURO_FILES
+        file_names.append(filename)
+    return file_names
 
 
 def save_chunked(keys_list, folder, base_name, chunk_size=None):
@@ -556,7 +560,7 @@ def save_json(path, data):
 
 # ==================== Генерация subscriptions_list.txt ====================
 
-def generate_subscriptions_list():
+def generate_subscriptions_list(ru_fast_files, ru_all_files, euro_fast_files, euro_all_files):
     GITHUB_USER_REPO = "kort0881/vpn-checker-backend"
     BRANCH = "main"
     BASE_RAW = f"https://raw.githubusercontent.com/{GITHUB_USER_REPO}/{BRANCH}"
@@ -564,30 +568,22 @@ def generate_subscriptions_list():
     subs_lines = []
 
     subs_lines.append("=== 🇷🇺 RUSSIA (FAST) ===")
-    for filename in RU_FILES:
+    for filename in ru_fast_files:
         subs_lines.append(f"{BASE_RAW}/checked/RU_Best/{filename}")
     subs_lines.append("")
 
     subs_lines.append("=== 🇷🇺 RUSSIA (ALL) ===")
-    ru_all_candidates = sorted(
-        f for f in os.listdir(FOLDER_RU)
-        if f.startswith("ru_white_all_part") and f.endswith(".txt")
-    )
-    for fname in ru_all_candidates[:2]:
+    for fname in ru_all_files:
         subs_lines.append(f"{BASE_RAW}/checked/RU_Best/{fname}")
     subs_lines.append("")
 
     subs_lines.append("=== 🇪🇺 EUROPE (FAST) ===")
-    for filename in EURO_FILES:
+    for filename in euro_fast_files:
         subs_lines.append(f"{BASE_RAW}/checked/My_Euro/{filename}")
     subs_lines.append("")
 
     subs_lines.append("=== 🇪🇺 EUROPE (ALL) ===")
-    euro_all_candidates = sorted(
-        f for f in os.listdir(FOLDER_EURO)
-        if f.startswith("my_euro_all_part") and f.endswith(".txt")
-    )
-    for fname in euro_all_candidates[:2]:
+    for fname in euro_all_files:
         subs_lines.append(f"{BASE_RAW}/checked/My_Euro/{fname}")
     subs_lines.append("")
 
@@ -653,6 +649,7 @@ if __name__ == "__main__":
         cached = history.get(k_id)
 
         if cached and (current_time - cached["time"] < CACHE_HOURS * 3600) and cached["alive"]:
+
             latency = cached["latency"]
             country = cached.get("country", "UNKNOWN")
             host = cached.get("host", "")
@@ -747,16 +744,16 @@ if __name__ == "__main__":
     print(f"  EURO FAST: {len(res_euro_fast)}")
 
     print(f"\n💾 Сохранение RU FAST → {FOLDER_RU}:")
-    save_fixed_chunks_ru(res_ru_fast, FOLDER_RU)
+    ru_fast_files = save_fixed_chunks_ru(res_ru_fast, FOLDER_RU)
 
     print(f"\n💾 Сохранение EURO FAST → {FOLDER_EURO} (по {EURO_CHUNK_LIMIT} ключей):")
-    save_fixed_chunks_euro(res_euro_fast, FOLDER_EURO)
+    euro_fast_files = save_fixed_chunks_euro(res_euro_fast, FOLDER_EURO)
 
     print(f"\n💾 Сохранение RU ALL → {FOLDER_RU}:")
-    save_chunked(res_ru_clean, FOLDER_RU, "ru_white_all")
+    ru_all_files = save_chunked(res_ru_clean, FOLDER_RU, "ru_white_all")
 
     print(f"\n💾 Сохранение EURO ALL → {FOLDER_EURO} (по {EURO_CHUNK_LIMIT} ключей):")
-    save_chunked(res_euro_clean, FOLDER_EURO, "my_euro_all", chunk_size=EURO_CHUNK_LIMIT)
+    euro_all_files = save_chunked(res_euro_clean, FOLDER_EURO, "my_euro_all", chunk_size=EURO_CHUNK_LIMIT)
 
     print(f"\n💾 WHITE/BLACK → {FOLDER_RU}:")
     save_exact(res_ru_clean, FOLDER_RU, "ru_white_all_WHITE.txt")
@@ -766,7 +763,8 @@ if __name__ == "__main__":
     save_exact(res_euro_clean, FOLDER_EURO, "my_euro_all_WHITE.txt")
     save_exact(dead_euro, FOLDER_EURO, "my_euro_all_BLACK.txt")
 
-    generate_subscriptions_list()
+    # Генерация subscriptions_list.txt с динамическими ссылками
+    generate_subscriptions_list(ru_fast_files, ru_all_files, euro_fast_files, euro_all_files)
 
     # ==================== ФИНАЛЬНЫЙ ОТЧЁТ ====================
     print("\n" + "=" * 55)
@@ -797,7 +795,6 @@ if __name__ == "__main__":
         print(f"  {kind:8s}: {n:5d}  ({n * 100 // total_err}%)")
 
     print("\n✅ SUCCESS: FAST/ALL + WHITE/BLACK GENERATED")
-
 
 
 
