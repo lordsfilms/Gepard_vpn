@@ -50,7 +50,7 @@ RU_FILES = ["ru_white_part1.txt", "ru_white_part2.txt", "ru_white_part3.txt", "r
 EURO_FILES = ["my_euro_part1.txt", "my_euro_part2.txt", "my_euro_part3.txt"]
 
 HISTORY_FILE = os.path.join(BASE_DIR, "history.json")
-MY_CHANNEL = "@vlesstrojan"
+MY_CHANNEL = "@gepard_vpn"
 
 URLS_RU = [
     "https://github.com/igareck/vpn-configs-for-russia/blob/main/BLACK_VLESS_RUS_mobile.txt",
@@ -71,16 +71,16 @@ URLS_RU = [
 
 URLS_MY = [
     # 🔹 Максимум источников от Mirror — общий белый список
-    "https://raw.githubusercontent.com/kort0881/vpn-vless-configs-russia/refs/heads/main/githubmirror/new/all_new.txt",
+    "https://raw.githubusercontent.com/lordsfilms/Gepard_vpn/refs/heads/main/githubmirror/new/all_new.txt",
     # 🔹 Более аккуратный вход — уже дедупленные по IP:PORT:SCHEME clean/*.txt
-    "https://raw.githubusercontent.com/kort0881/vpn-vless-configs-russia/refs/heads/main/githubmirror/clean/vless.txt",
-    "https://raw.githubusercontent.com/kort0881/vpn-vless-configs-russia/refs/heads/main/githubmirror/clean/vmess.txt",
-    "https://raw.githubusercontent.com/kort0881/vpn-vless-configs-russia/refs/heads/main/githubmirror/clean/trojan.txt",
-    "https://raw.githubusercontent.com/kort0881/vpn-vless-configs-russia/refs/heads/main/githubmirror/clean/ss.txt",
-    "https://raw.githubusercontent.com/kort0881/vpn-vless-configs-russia/refs/heads/main/githubmirror/clean/hysteria.txt",
-    "https://raw.githubusercontent.com/kort0881/vpn-vless-configs-russia/refs/heads/main/githubmirror/clean/hysteria2.txt",
-    "https://raw.githubusercontent.com/kort0881/vpn-vless-configs-russia/refs/heads/main/githubmirror/clean/hy2.txt",
-    "https://raw.githubusercontent.com/kort0881/vpn-vless-configs-russia/refs/heads/main/githubmirror/clean/tuic.txt",
+    "https://raw.githubusercontent.com/lordsfilms/Gepard_vpn/refs/heads/main/githubmirror/clean/vless.txt",
+    "https://raw.githubusercontent.com/lordsfilms/Gepard_vpn/refs/heads/main/githubmirror/clean/vmess.txt",
+    "https://raw.githubusercontent.com/lordsfilms/Gepard_vpn/refs/heads/main/githubmirror/clean/trojan.txt",
+    "https://raw.githubusercontent.com/lordsfilms/Gepard_vpn/refs/heads/main/githubmirror/clean/ss.txt",
+    "https://raw.githubusercontent.com/lordsfilms/Gepard_vpn/refs/heads/main/githubmirror/clean/hysteria.txt",
+    "https://raw.githubusercontent.com/lordsfilms/Gepard_vpn/refs/heads/main/githubmirror/clean/hysteria2.txt",
+    "https://raw.githubusercontent.com/lordsfilms/Gepard_vpn/refs/heads/main/githubmirror/clean/hy2.txt",
+    "https://raw.githubusercontent.com/lordsfilms/Gepard_vpn/refs/heads/main/githubmirror/clean/tuic.txt",
 ]
 
 EURO_CODES = {
@@ -561,7 +561,7 @@ def save_json(path, data):
 # ==================== Генерация subscriptions_list.txt ====================
 
 def generate_subscriptions_list(ru_fast_files, ru_all_files, euro_fast_files, euro_all_files):
-    GITHUB_USER_REPO = "kort0881/vpn-checker-backend"
+    GITHUB_USER_REPO = "lordsfilms/Gepard_vpn"
     BRANCH = "main"
     BASE_RAW = f"https://raw.githubusercontent.com/{GITHUB_USER_REPO}/{BRANCH}"
 
