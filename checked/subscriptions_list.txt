@@ -1,10 +1,13 @@
 === 🇷🇺 RUSSIA (FAST) ===
 https://raw.githubusercontent.com/lordsfilms/Gepard_vpn/main/checked/RU_Best/ru_white_part1.txt
 https://raw.githubusercontent.com/lordsfilms/Gepard_vpn/main/checked/RU_Best/ru_white_part2.txt
+https://raw.githubusercontent.com/lordsfilms/Gepard_vpn/main/checked/RU_Best/ru_white_part3.txt
 
 === 🇷🇺 RUSSIA (ALL) ===
 https://raw.githubusercontent.com/lordsfilms/Gepard_vpn/main/checked/RU_Best/ru_white_all_part1.txt
 https://raw.githubusercontent.com/lordsfilms/Gepard_vpn/main/checked/RU_Best/ru_white_all_part2.txt
+https://raw.githubusercontent.com/lordsfilms/Gepard_vpn/main/checked/RU_Best/ru_white_all_part3.txt
+https://raw.githubusercontent.com/lordsfilms/Gepard_vpn/main/checked/RU_Best/ru_white_all_part4.txt
 
 === ✅ WHITE RUSSIA (ALL) ===
 https://raw.githubusercontent.com/lordsfilms/Gepard_vpn/main/checked/RU_Best/ru_white_all_WHITE.txt
