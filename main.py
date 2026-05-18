@@ -53,20 +53,21 @@ HISTORY_FILE = os.path.join(BASE_DIR, "history.json")
 MY_CHANNEL = "@vlesstrojan"
 
 URLS_RU = [
-    "https://github.com/igareck/vpn-configs-for-russia/blob/main/BLACK_VLESS_RUS_mobile.txt",
-    "https://github.com/igareck/vpn-configs-for-russia/blob/main/BLACK_SS%2BAll_RUS.txt",
-    "https://github.com/igareck/vpn-configs-for-russia/blob/main/Vless-Reality-White-Lists-Rus-Mobile-2.txt",
-    "https://github.com/igareck/vpn-configs-for-russia/blob/main/Vless-Reality-White-Lists-Rus-Mobile.txt",
-    "https://github.com/igareck/vpn-configs-for-russia/blob/main/WHITE-CIDR-RU-all.txt",
-    "https://github.com/igareck/vpn-configs-for-russia/blob/main/WHITE-CIDR-RU-checked.txt",
-    "https://github.com/igareck/vpn-configs-for-russia/blob/main/WHITE-SNI-RU-all.txt",
+    "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/Base64/BLACK_SS+All_RUS_base64.txt",
+    "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/Base64/BLACK_VLESS_RUS_base64.txt",
+    "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/Base64/BLACK_VLESS_RUS_mobile_base64.txt",
+    "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/Base64/Vless-Reality-White-Lists-Rus-Mobile-2-base64.txt",
+    "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/Base64/Vless-Reality-White-Lists-Rus-Mobile-base64.txt",
+    "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/Base64/WHITE-CIDR-RU-all-base64.txt",
+    "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/Base64/WHITE-CIDR-RU-checked-base64.txt",
+    "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/Base64/WHITE-SNI-RU-all-base64.txt",
     "https://raw.githubusercontent.com/zieng2/wl/main/vless.txt",
     "https://raw.githubusercontent.com/LowiKLive/BypassWhitelistRu/refs/heads/main/WhiteList-Bypass_Ru.txt",
     "https://raw.githubusercontent.com/zieng2/wl/main/vless_universal.txt",
     "https://raw.githubusercontent.com/vsevjik/OBSpiskov/refs/heads/main/wwh",
     "https://jsnegsukavsos.hb.ru-msk.vkcloud-storage.ru/love",
     "https://etoneya.a9fm.site/1",
-    "https://s3c3.001.gpucloud.ru/vahe4xkwi/cjdr"
+    "https://s3c3.001.gpucloud.ru/vahe4xkwi/cjdr",
 ]
 
 URLS_MY = [
