@@ -9,6 +9,10 @@ permissions:
   contents: write
   actions: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   check-keys:
     runs-on: ubuntu-latest
@@ -50,7 +54,7 @@ jobs:
       - name: Commit & Push
         run: |
           git config user.name "GitHub Actions Bot"
-          git config user.email "actions@github.com"
+          git config.user.email "actions@github.com"
           git add checked/subscriptions_list.txt || true
           git add checked/**/*.txt || true
           git add checked/**/*.json || true
