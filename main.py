@@ -53,7 +53,7 @@ RU_FILES = ["ru_white_part1.txt", "ru_white_part2.txt", "ru_white_part3.txt", "r
 EURO_FILES = ["my_euro_part1.txt", "my_euro_part2.txt", "my_euro_part3.txt"]
 
 HISTORY_FILE = os.path.join(BASE_DIR, "history.json")
-MY_CHANNEL = "@vlesstrojan"
+MY_CHANNEL = "@gepard_vpn"
 
 URLS_RU = [
     "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/Base64/BLACK_SS+All_RUS_base64.txt",
@@ -123,10 +123,10 @@ URLS_RU = [
 ]
 
 URLS_MY = [
-    "https://raw.githubusercontent.com/kort0881/vpn-vless-configs-russia/main/archive/subscriptions/all_base64.txt",
-    "https://raw.githubusercontent.com/kort0881/vpn-vless-configs-russia/main/archive/subscriptions/all.txt",
-    "https://raw.githubusercontent.com/kort0881/vpn-vless-configs-russia/main/archive/subscriptions/sni_filtered_base64.txt",
-    "https://raw.githubusercontent.com/kort0881/vpn-vless-configs-russia/main/archive/my_sources/generated/vless.txt",
+    "https://raw.githubusercontent.com/lordsfilms/Gepard_vpn/main/archive/subscriptions/all_base64.txt",
+    "https://raw.githubusercontent.com/lordsfilms/Gepard_vpn/main/archive/subscriptions/all.txt",
+    "https://raw.githubusercontent.com/lordsfilms/Gepard_vpn/main/archive/subscriptions/sni_filtered_base64.txt",
+    "https://raw.githubusercontent.com/lordsfilms/Gepard_vpn/main/archive/my_sources/generated/vless.txt",
 ]
 
 EURO_CODES = {
@@ -558,7 +558,7 @@ def save_json(path, data):
         pass
 
 def generate_subscriptions_list(ru_fast_files, ru_all_files, euro_fast_files, euro_all_files):
-    GITHUB_USER_REPO = "kort0881/vpn-checker-backend"
+    GITHUB_USER_REPO = "lordsfilms/Gepard_vpn/checked"
     BRANCH = "main"
     BASE_RAW = f"https://raw.githubusercontent.com/{GITHUB_USER_REPO}/{BRANCH}"
     subs_lines = []
