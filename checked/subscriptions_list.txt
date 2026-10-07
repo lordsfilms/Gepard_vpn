@@ -1,19 +1,19 @@
-# Generated: 2026-10-06T18:59:49.894668+00:00 UTC
+# Generated: 2026-10-07T00:35:44.744468+00:00 UTC
 
 === 🇷🇺 RUSSIA (FAST) ===
-https://raw.githubusercontent.com/lordsfilms/Gepard_vpn/checked/main/checked/RU_Best/ru_white_part1.txt?ts=1791313189
-https://raw.githubusercontent.com/lordsfilms/Gepard_vpn/checked/main/checked/RU_Best/ru_white_part2.txt?ts=1791313189
-https://raw.githubusercontent.com/lordsfilms/Gepard_vpn/checked/main/checked/RU_Best/ru_white_part3.txt?ts=1791313189
+https://raw.githubusercontent.com/lordsfilms/Gepard_vpn/checked/main/checked/RU_Best/ru_white_part1.txt?ts=1791333344
+https://raw.githubusercontent.com/lordsfilms/Gepard_vpn/checked/main/checked/RU_Best/ru_white_part2.txt?ts=1791333344
+https://raw.githubusercontent.com/lordsfilms/Gepard_vpn/checked/main/checked/RU_Best/ru_white_part3.txt?ts=1791333344
 
 === 🇷🇺 RUSSIA (ALL) ===
-https://raw.githubusercontent.com/lordsfilms/Gepard_vpn/checked/main/checked/RU_Best/ru_white_all_part1.txt?ts=1791313189
-https://raw.githubusercontent.com/lordsfilms/Gepard_vpn/checked/main/checked/RU_Best/ru_white_all_part2.txt?ts=1791313189
-https://raw.githubusercontent.com/lordsfilms/Gepard_vpn/checked/main/checked/RU_Best/ru_white_all_part3.txt?ts=1791313189
-https://raw.githubusercontent.com/lordsfilms/Gepard_vpn/checked/main/checked/RU_Best/ru_white_all_part4.txt?ts=1791313189
-https://raw.githubusercontent.com/lordsfilms/Gepard_vpn/checked/main/checked/RU_Best/ru_white_all_part5.txt?ts=1791313189
+https://raw.githubusercontent.com/lordsfilms/Gepard_vpn/checked/main/checked/RU_Best/ru_white_all_part1.txt?ts=1791333344
+https://raw.githubusercontent.com/lordsfilms/Gepard_vpn/checked/main/checked/RU_Best/ru_white_all_part2.txt?ts=1791333344
+https://raw.githubusercontent.com/lordsfilms/Gepard_vpn/checked/main/checked/RU_Best/ru_white_all_part3.txt?ts=1791333344
+https://raw.githubusercontent.com/lordsfilms/Gepard_vpn/checked/main/checked/RU_Best/ru_white_all_part4.txt?ts=1791333344
+https://raw.githubusercontent.com/lordsfilms/Gepard_vpn/checked/main/checked/RU_Best/ru_white_all_part5.txt?ts=1791333344
 
 === ✅ WHITE RUSSIA (ALL) ===
-https://raw.githubusercontent.com/lordsfilms/Gepard_vpn/checked/main/checked/RU_Best/ru_white_all_WHITE.txt?ts=1791313189
+https://raw.githubusercontent.com/lordsfilms/Gepard_vpn/checked/main/checked/RU_Best/ru_white_all_WHITE.txt?ts=1791333344
 
 === ⚠️ BLACK RUSSIA (ALL) ===
-https://raw.githubusercontent.com/lordsfilms/Gepard_vpn/checked/main/checked/RU_Best/ru_white_all_BLACK.txt?ts=1791313189
+https://raw.githubusercontent.com/lordsfilms/Gepard_vpn/checked/main/checked/RU_Best/ru_white_all_BLACK.txt?ts=1791333344
